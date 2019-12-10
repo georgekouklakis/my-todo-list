@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Todo } from './todo.model';
 
-let TODOS = [
-  { title: 'Fix activeTasks (items left)', isDone: false },
-  { title: 'Hide list when there are no tasks', isDone: false },
-  { title: 'When adding a task, navigate to all tasks', isDone: false },
-  { title: 'Create a pipe that filters the list based on the value of an input field', isDone: false },
-  { title: 'Create a new component, navigate to it and pass some data originated from the origin component', isDone: false },
-  { title: 'Resolve', isDone: false }
+let todoList: Todo[] = [
+  { title: 'First task', isDone: false },
+  { title: 'Second task', isDone: false },
+  { title: 'Third task', isDone: false },
+  { title: 'Forth task', isDone: false },
+  { title: 'Fifth task', isDone: false }
 ];
 
 @Injectable({
@@ -16,47 +17,47 @@ export class TodoService {
   constructor() {}
 
   get(query = '') {
-    return new Promise(resolve => {
-      let data;
+    return new Observable<Todo[]>(observer => {
+      let data: Todo[];
 
       if (query === 'completed' || query === 'active') {
         const isCompleted = query === 'completed';
-        data = TODOS.filter(todo => todo.isDone === isCompleted);
+        data = todoList.filter(todo => todo.isDone === isCompleted);
       } else {
-        data = TODOS;
+        data = todoList;
       }
 
-      resolve(data);
+      observer.next(data);
     });
   }
 
-  add(data) {
-    return new Promise(resolve => {
-      TODOS.push(data);
-      resolve(data);
+  add(data: Todo) {
+    return new Observable<Todo[]>(observer => {
+      todoList.push(data);
+      observer.next(todoList);
     });
   }
 
-  put(changed) {
-    return new Promise(resolve => {
-      const index = TODOS.findIndex(todo => todo === changed);
-      TODOS[index].title = changed.title;
-      resolve(changed);
+  update(changed: Todo) {
+    return new Observable<Todo[]>(observer => {
+      const index = todoList.findIndex(todo => todo === changed);
+      todoList[index].title = changed.title;
+      observer.next(todoList);
     });
   }
 
-  delete(selected) {
-    return new Promise(resolve => {
-      const index = TODOS.findIndex(todo => todo === selected);
-      TODOS.splice(index, 1);
-      resolve(true);
+  delete(selected: Todo) {
+    return new Observable<Todo[]>(observer => {
+      const index = todoList.findIndex(todo => todo === selected);
+      todoList.splice(index, 1);
+      observer.next(todoList);
     });
   }
 
   deleteCompleted() {
-    return new Promise(resolve => {
-      TODOS = TODOS.filter(todo => !todo.isDone);
-      resolve(TODOS);
+    return new Observable<Todo[]>(observer => {
+      todoList = todoList.filter(todo => !todo.isDone);
+      observer.next(todoList);
     });
   }
 }

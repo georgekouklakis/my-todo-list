@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit} from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { TodoService } from './todo.service';
+import { Todo } from './todo.model';
 
 @Component({
   selector: 'app-todo',
@@ -10,15 +11,14 @@ import { TodoService } from './todo.service';
   providers: [TodoService]
 })
 export class TodoComponent implements OnInit {
-  public todos;
-  public activeTasks;
-  public newTodo;
-  public path;
+  public todos: Todo[];
+  public activeTasks: number;
+  public newTodoTitle: string;
+  public path: string;
 
   constructor(
     private todoService: TodoService,
-    private route: ActivatedRoute,
-    private router: Router
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -30,38 +30,36 @@ export class TodoComponent implements OnInit {
 
   addTodo() {
     this.todoService
-      .add({ title: this.newTodo, isDone: false })
-      .then(() => {
-        return this.getTodos();
-      })
-      .then(() => {
-        this.newTodo = '';
+      .add({ title: this.newTodoTitle, isDone: false })
+      .subscribe((todos: Todo[]) => {
+        this.todos = todos;
+        this.newTodoTitle = '';
       });
   }
 
   getTodos(query = '') {
-    return this.todoService.get(query).then(todos => {
+    return this.todoService.get(query).subscribe(todos => {
       this.todos = todos;
     });
   }
 
-  updateTodo(todo, newValue) {
+  updateTodo(todo: Todo, newValue: string) {
     todo.title = newValue;
-    return this.todoService.put(todo).then(() => {
+    return this.todoService.update(todo).subscribe(todos => {
       todo.editing = false;
-      return this.getTodos();
+      this.todos = todos;
     });
   }
 
-  destroyTodo(todo) {
-    this.todoService.delete(todo).then(() => {
-      return this.getTodos();
+  destroyTodo(todo: Todo) {
+    this.todoService.delete(todo).subscribe(todos => {
+      this.todos = todos;
     });
   }
 
   clearCompleted() {
-    this.todoService.deleteCompleted().then(() => {
-      return this.getTodos();
+    this.todoService.deleteCompleted().subscribe(todos => {
+      this.todos = todos;
     });
   }
 }
